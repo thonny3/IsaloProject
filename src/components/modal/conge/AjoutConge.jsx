@@ -3,9 +3,17 @@ import Modal from "../Modal";
 import { useAdmin } from "../../../context/AdminContext";
 import { Conge } from "../../../service/Conge";
 import { useConge } from "../../../context/CongeContext";
+import Select from "react-select"; // Importation de react-select
 
 export default function AjoutConge() {
-  const { openPoste, closeModal, listEmploye, typeConge, getTypeConges,getAllEmploye } = useAdmin();
+  const {
+    openPoste,
+    closeModal,
+    listEmploye,
+    typeConge,
+    getTypeConges,
+    getAllEmploye,
+  } = useAdmin();
   const {
     open,
     onclose,
@@ -18,71 +26,75 @@ export default function AjoutConge() {
     errors,
     edit,
     getTypeConge,
-    isLoading
+    isLoading,
   } = useConge();
 
-  
- 
+  useEffect(() => {
+    getTypeConges();
+    getAllEmploye();
+  }, []);
 
+  // Conversion des options en format compatible avec react-select
+  const employeOptions = listEmploye.map((emp) => ({
+    value: emp.id,
+    label: emp.nom,
+  }));
 
-  useEffect(()=>{
-    getTypeConges()
-    getAllEmploye()
-  },[])
-  
+  const typeCongeOptions = typeConge.map((type) => ({
+    value: type.id,
+    label: type.nom,
+  }));
 
   return (
     <Modal open={open} onClose={onclose}>
-      <h1 className="text-lg font-semibold  mt-5">{ edit? "Modifier" : "Création"} Congé</h1>
-      <form action="" method="post px-5" >
+      <h1 className="text-lg font-semibold mt-5">
+        {edit ? "Modifier le congé" : "Créer un congé"}
+      </h1>
+      <form action="" method="post" className="px-5">
         <div className="form grid grid-cols-2 gap-5">
           <div className="form1">
             <div className="form-group mt-5">
-              <label htmlFor="employe">Employé <span className="text-red-500 font-semibold">*</span> </label>
-              <select
-                name="employe"
-                className="form-control h-10 w-full text-sm"
+              <label htmlFor="employe">
+                Employé <span className="text-red-500 font-semibold">*</span>
+              </label>
+              <Select
                 id="employe"
-                value={data.user_id}
-                onChange={getUser}
-              >
-                <option value="">Sélectionnez un employé  </option>
-                {listEmploye.map((row, index) => (
-                  <option key={index} value={row.id}>
-                    {row.nom}
-                  </option>
-                ))}
-              </select>
-               {/* Message d'erreur pour le nom */}
-               {errors.user_id && (
-                    <p className="text-red-600 mt-1 text-sm">{errors.user_id}</p>
-                  )}
+                options={employeOptions}
+                value={employeOptions.find(
+                  (option) => option.value === data.user_id
+                )}
+                onChange={(selectedOption) => getUser(selectedOption)}
+                className="h-10 w-full"
+              />
+              {errors.user_id && (
+                <p className="text-red-600 mt-1 text-sm">{errors.user_id}</p>
+              )}
             </div>
             <div className="form-group mt-5">
               <label htmlFor="type">Type</label>
-              <select
-                name="type"
-                className="form-control h-10 w-full text-sm focus:ring-red-500"
+              <Select
                 id="type"
-                value={data.type_conge_id}
-                onChange={getTypeConge}
-              >
-                <option value="">Sélectionnez un Type congé <span className="text-red-500 font-semibold">*</span></option>
-                {typeConge.map((row, index) => (
-                  <option key={index} value={row.id}>
-                    {row.nom} 
-                  </option>
-                ))}
-              </select>
-              {/* Message d'erreur pour le type de conge  */}
+                options={typeCongeOptions}
+                value={typeCongeOptions.find(
+                  (option) => option.value === data.type_conge_id
+                )}
+                onChange={(selectedOption) =>
+                  getTypeConge(selectedOption)
+                }
+                className="h-10 w-full focus:ring-red-500"
+              />
               {errors.type_conger_id && (
-                    <p className="text-red-600 mt-1 text-sm">{errors.type_conger_id}</p>
-                  )}
+                <p className="text-red-600 mt-1 text-sm">
+                  {errors.type_conger_id}
+                </p>
+              )}
             </div>
           </div>
           <div className="form2">
             <div className="form-group mt-5">
-              <label htmlFor="dateDebut">Date Début <span className="text-red-500 font-semibold">*</span></label>
+              <label htmlFor="dateDebut">
+                Date Début <span className="text-red-500 font-semibold">*</span>
+              </label>
               <input
                 type="date"
                 id="dateDebut"
@@ -91,13 +103,14 @@ export default function AjoutConge() {
                 min={new Date().toISOString().split("T")[0]}
                 onChange={getDateDeb}
               />
-              {/* Message d'erreur pour le date debut  */}
               {errors.date_debut && (
-                    <p className="text-red-600 mt-1 text-sm">{errors.date_debut}</p>
-                  )}
+                <p className="text-red-600 mt-1 text-sm">{errors.date_debut}</p>
+              )}
             </div>
             <div className="form-group mt-5">
-              <label htmlFor="dateFin">Date Fin <span className="text-red-500 font-semibold">*</span></label>
+              <label htmlFor="dateFin">
+                Date Fin <span className="text-red-500 font-semibold">*</span>
+              </label>
               <input
                 type="date"
                 id="dateFin"
@@ -106,15 +119,14 @@ export default function AjoutConge() {
                 min={data.date_debut}
                 onChange={getDateFin}
               />
-              {/* Message d'erreur pour le date fe fin  */}
               {errors.date_fin && (
-                    <p className="text-red-600 mt-1 text-sm">{errors.date_fin}</p>
-                  )}
+                <p className="text-red-600 mt-1 text-sm">{errors.date_fin}</p>
+              )}
             </div>
           </div>
         </div>
         <div className="form-group mt-5">
-          <label htmlFor="motif">Motif </label>
+          <label htmlFor="motif">Motif</label>
           <textarea
             id="motif"
             cols="60"
@@ -122,9 +134,7 @@ export default function AjoutConge() {
             className="form-control w-full h-28"
             value={data.motif}
             onChange={getMotif}
-            
           ></textarea>
-        
         </div>
         <div className="boutton mt-5 text-right">
           <button type="button" className="btn" onClick={() => onclose()}>
@@ -160,7 +170,7 @@ export default function AjoutConge() {
                 Chargement...
               </>
             ) : (
-             <> {edit ? "Modifier " : "Ajouter"}</>
+              <> {edit ? "Modifier" : "Ajouter"}</>
             )}
           </button>
         </div>

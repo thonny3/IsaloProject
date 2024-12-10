@@ -42,6 +42,7 @@ const App = () => {
                   </button>
                 </td>
               </tr>
+              
               <tr className="hover:bg-gray-100">
                 <td className="py-2 flex items-center space-x-2">
                   <img

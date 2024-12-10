@@ -45,7 +45,7 @@ export default function DeletePoste() {
         
           <p className="text-center font-semibold text-lg text-gray-700">
             {id && id.nom
-              ? `Êtes-vous sûr de vouloir supprimer ce poste ${id.nom} ${id.id}?`
+              ? `Êtes-vous sûr de vouloir supprimer ce poste ${id.nom} ?`
               : "Aucun poste sélectionné."}
           </p>
         </div>

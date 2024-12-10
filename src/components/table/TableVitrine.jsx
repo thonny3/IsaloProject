@@ -75,51 +75,65 @@ export default function TableVitrine() {
   return (
     <>
       <div className="">
-        <table className="text-left w-full">
-          <thead>
-            <tr className="bg-gray-100 text-sm text-gray-500 font-normal">
-              <th className="px-4 py-2">Nom</th>
-              <th className="px-4 py-2">Catégorie</th>
-              <th className="px-4 py-2">Quantite</th>
-              <th className="px-4 py-2">Prix vitrine</th>
-              <th className="px-4 py-2">Prix de vente</th>
-              <th className="px-4 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((row) => (
-              <tr className="text-gray-600 mt-2">
-                <td className="px-4 py-2 flex items-center">
-                  {row.produit.nom}
-                </td>
+      <table className="text-left w-full border border-gray-300 border-collapse">
+  <thead>
+    <tr className="bg-gray-100 text-sm text-gray-500 font-normal">
+      <th className="px-4 py-2 border border-gray-300">Nom</th>
+      <th className="px-4 py-2 border border-gray-300">Catégorie</th>
+      <th className="px-4 py-2 border border-gray-300">Quantite</th>
+      <th className="px-4 py-2 border border-gray-300">Prix vitrine</th>
+      <th className="px-4 py-2 border border-gray-300">Prix de vente</th>
+    </tr>
+  </thead>
+  <tbody>
+    {currentData.map((row) => (
+     <tr key={row.produit?.id || `key-${Math.random()}`} className="text-gray-600">
+     {/* Nom du produit */}
+     <td className="px-4 py-2 border border-gray-300">
+       {row.produit?.nom || "Aucun produit"}
+     </td>
+   
+     {/* Catégorie */}
+     <td className="px-4 py-2 border border-gray-300">
+       {row.produit?.categorie_id ? (
+         row.produit.categorie_id
+       ) : (
+         <span className="text-red-500">Catégorie manquante</span>
+       )}
+     </td>
+   
+     {/* Quantité */}
+     <td className="px-4 py-2 border border-gray-300">
+       <span
+         className={`inline-block w-8 h-8 rounded-full text-center leading-8 ${
+           row.quantite && row.quantite <= 5
+             ? "bg-red-500 text-white"
+             : "bg-gray-200 text-black"
+         }`}
+       >
+         {row.quantite ?? "N/A"}
+       </span>
+     </td>
+   
+     {/* Prix */}
+     <td className="px-4 py-2 border border-gray-300 text-green-700">
+       {row.produit?.prix !== undefined && row.produit?.prix !== null
+         ? `${row.produit.prix} $`
+         : "Prix indisponible"}
+     </td>
+   
+     {/* Prix de vente */}
+     <td className="px-4 py-2 border border-gray-300">
+       {row.produit?.prix_vente !== undefined && row.produit?.prix_vente !== null
+         ? `${row.produit.prix_vente} $`
+         : "Prix de vente indisponible"}
+     </td>
+   </tr>
+   
+    ))}
+  </tbody>
+</table>
 
-                <td className="px-4 py-2 "> {row.produit.categorie_id}</td>
-                <td className="px-4 py-2">
-                  {" "}
-                  <span
-                    className={`inline-block w-8 h-8 rounded-full text-center leading-8 ${
-                      row.quantite <= 5
-                        ? "bg-red-500 text-white"
-                        : "bg-gray-200 text-black"
-                    }`}
-                  >
-                    {row.quantite}
-                  </span>
-                </td>
-                <td className="px-4 py-2">{row.produit.prix}</td>
-                <td className="px-4 py-2">{row.produit.prix_vente}</td>
-                <td className="px-4 py-2 flex space-x-2">
-                  <button className="text-gray-600 hover:text-blue-700 text-sm">
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                  <button className="text-gray-600 hover:text-red-700">
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
         {/* Pagination */}
         <div className="flex justify-end items-center mt-4">

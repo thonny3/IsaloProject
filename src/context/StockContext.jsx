@@ -15,9 +15,11 @@ export const StockProvider = ({ children }) => {
     setVitrine,
     tiko,
     setTiko,
+    global,
+    setGlobal,
   } = useAdmin();
 
-  const [stockage, setStockage] = useState("magasin");
+  const [stockage, setStockage] = useState("tous");
 
   const getEtatStock = () => {
     Stock.getEtatStockEtoil()
@@ -55,6 +57,17 @@ export const StockProvider = ({ children }) => {
       .catch((error) => console.log(error));
   };
 
+  const getGlobalStock = () => {
+    Stock.globalStok()
+      .then((res) => {
+        setGlobal(res.data);
+        console.log(res.data);
+      })
+      .catch((error) => console.log(error));
+  };
+
+
+
   useEffect(() => {
     getEtatStock();
   }, []);
@@ -71,6 +84,8 @@ export const StockProvider = ({ children }) => {
         getStockMagasin,
         getStockVitrine,
         getStockTiko,
+        getGlobalStock,
+        global
       }}
     >
       {children}

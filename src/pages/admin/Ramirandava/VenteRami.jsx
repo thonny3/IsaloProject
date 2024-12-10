@@ -9,10 +9,11 @@ export default function VenteRami() {
   const {setLieu,setOpen} = useFournisseur()
   return (
     <>
+    <div className="">
     <div className="vente flex items-center justify-between">
       <div className="flex items-center">
-        <span className="text-secondary text-gray-700 text-2xl">
-          Liste des ventes
+        <span className="text-secondary text-gray-700 text-4xl">
+          Historiques  des ventes
         </span>
         <div className="nombre ml-2 w-5 h-5 bg-gray-200 rounded-full flex justify-center items-center mt-2">
           <span className="text-xs text-primary font-semibold">
@@ -39,6 +40,7 @@ export default function VenteRami() {
     </div>
     <div className="mt-5">
       <TableVenteRami/>
+    </div>
     </div>
     <AjoutApprovisionnement/>
   </>

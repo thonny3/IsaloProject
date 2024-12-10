@@ -6,16 +6,22 @@ import { useProduit } from "../../context/ProduitContext";
 export default function TableProduit() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageGroup, setPageGroup] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 5;
-  const { setOpenModalDelete, setInfo, listEmploye,setId } = useAdmin();
-  const { listProduit,setEdit,setOpen,ShowEdit ,setOpenDelete} = useProduit();
+  const { setOpenModalDelete, setInfo, listEmploye, setId } = useAdmin();
+  const { listProduit, setEdit, setOpen, ShowEdit, setOpenDelete } = useProduit();
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(listProduit.length / itemsPerPage);
+  // Filter the list of products based on the search term
+  const filteredList = listProduit.filter((row) =>
+    row.nom.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate the total number of pages based on the filtered list
+  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
   const pagesPerGroup = 3; // Number of pages displayed per group
 
   // Get current data based on the page
-  const currentData = listProduit.slice(
+  const currentData = filteredList.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -32,54 +38,23 @@ export default function TableProduit() {
     setPageGroup(pageGroup - 1);
   };
 
-  // Function to render page numbers with ellipses
-  const renderPageNumbers = () => {
-    const startPage = (pageGroup - 1) * pagesPerGroup + 1;
-    const endPage = Math.min(startPage + pagesPerGroup - 1, totalPages);
-
-    const pages = [];
-
-    if (pageGroup > 1) {
-      pages.push(
-        <span key="start-ellipsis" className="px-2 text-gray-400">
-          ...
-        </span>
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => goToPage(i)}
-          className={`px-4 py-2 text-sm ${
-            currentPage === i
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (pageGroup < Math.ceil(totalPages / pagesPerGroup)) {
-      pages.push(
-        <span key="end-ellipsis" className="px-2 text-gray-400">
-          ...
-        </span>
-      );
-    }
-
-    return pages;
-  };
-
   return (
     <div className="">
-      <table className="text-left w-full ">
-        <thead className="">
-        <tr className="bg-gray-100  text-gray-700 ">
-            <th className="px-4 py-2 ">Nom</th>
+      <h1 className="text-2xl mb-4 ">Liste des Produits</h1>
+      {/* Search bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Rechercher un produit..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-4 py-2 border rounded "
+        />
+      </div>
+      <table className="text-left w-full">
+        <thead>
+          <tr className="bg-gray-100 text-gray-700">
+            <th className="px-4 py-2">Nom</th>
             <th className="px-4 py-2">Catégorie</th>
             <th className="px-4 py-2">Prix</th>
             <th className="px-4 py-2">Prix de vente</th>
@@ -90,27 +65,23 @@ export default function TableProduit() {
           {currentData.map((row, index) => (
             <tr key={index} className="text-gray-700 py-3 hover:bg-gray-200">
               <td className="px-4 py-2 flex items-center">
-                <span className="ml-2  font-semibold">{row.nom}</span>
+                <span className="ml-2 font-semibold">{row.nom && row.nom ? row.nom : "Aucune produit "}</span>
               </td>
-              <td className="px-4 py-2">{row.categorie.nom}</td>
-             
-
+              <td className="px-4 py-2">    {row.categorie && row.categorie.nom ? row.categorie.nom : "Aucune catégorie"}</td>
               <td className="px-4 py-2 text-gray-700">
-                {" "}
                 {row.prix.toLocaleString("fr-FR")} Ar
               </td>
               <td className="px-4 py-2 text-gray-700">
-                {" "}
                 {row.prix_vente.toLocaleString("fr-FR")} Ar
               </td>
               <td className="px-4 py-2 flex space-x-2">
                 <button
                   className="text-gray-600 hover:text-blue-700 text-sm"
-                  onClick={()=>{
+                  onClick={() => {
                     setOpen(true);
                     setEdit(row.id);
-                    ShowEdit(row)
-                }}
+                    ShowEdit(row);
+                  }}
                 >
                   <PencilSquareIcon className="w-5 h-5" />
                 </button>
@@ -128,12 +99,14 @@ export default function TableProduit() {
           ))}
         </tbody>
       </table>
-       {/* Pagination */}
-       <div className="flex justify-end items-center mt-4">
+      {/* Pagination */}
+      <div className="flex justify-end items-center mt-4">
         <button
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-4 py-2 mx-2 ${currentPage === 1 ? "bg-gray-300" : "bg-gray-200 hover:bg-gray-300"}`}
+          className={`px-4 py-2 mx-2 ${
+            currentPage === 1 ? "bg-gray-300" : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
           Previous
         </button>
@@ -142,7 +115,9 @@ export default function TableProduit() {
             <button
               key={index}
               onClick={() => goToPage(index + 1)}
-              className={`px-4 py-2 ${currentPage === index + 1 ? "bg-primary mx-2 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+              className={`px-4 py-2 ${
+                currentPage === index + 1 ? "bg-primary mx-2 text-white" : "bg-gray-200 hover:bg-gray-300"
+              }`}
             >
               {index + 1}
             </button>
@@ -151,7 +126,9 @@ export default function TableProduit() {
         <button
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`px-4 py-2  mx-2 ${currentPage === totalPages ? "bg-gray-300" : "bg-gray-200 hover:bg-gray-300"}`}
+          className={`px-4 py-2 mx-2 ${
+            currentPage === totalPages ? "bg-gray-300" : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
           Next
         </button>

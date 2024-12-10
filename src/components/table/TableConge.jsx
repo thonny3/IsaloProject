@@ -8,14 +8,31 @@ const TableConge = () => {
   const { listeConge, ShowEdit, setEdit, setOpen } = useConge();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageGroup, setPageGroup] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const itemsPerPage = 5;
   const pagesPerGroup = 3;
 
   // Total de pages
   const totalPages = Math.ceil(listeConge.length / itemsPerPage);
 
+  // Filtrer les données en fonction du terme de recherche et des dates
+  const filteredData = listeConge.filter((row) => {
+    const matchNameOrDate =
+      row.user.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.date_debut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.date_fin.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchDateRange =
+      (startDate === "" || new Date(row.date_debut) >= new Date(startDate)) &&
+      (endDate === "" || new Date(row.date_fin) <= new Date(endDate));
+
+    return matchNameOrDate && matchDateRange;
+  });
+
   // Données à afficher pour la page actuelle
-  const currentData = listeConge.slice(
+  const currentData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -26,56 +43,35 @@ const TableConge = () => {
   // Changer de groupe de pages
   const changePageGroup = (direction) => setPageGroup(pageGroup + direction);
 
-  // Générer les numéros de pages avec "..." pour les groupes
-  const renderPageNumbers = () => {
-    const startPage = (pageGroup - 1) * pagesPerGroup + 1;
-    const endPage = Math.min(startPage + pagesPerGroup - 1, totalPages);
-    const pages = [];
-
-    if (pageGroup > 1)
-      pages.push(
-        <span key="start-ellipsis" className="px-2 text-gray-400">
-          ...
-        </span>
-      );
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => goToPage(i)}
-          className={`px-4 py-2 ${
-            currentPage === i
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (pageGroup < Math.ceil(totalPages / pagesPerGroup)) {
-      pages.push(
-        <span key="end-ellipsis" className="px-2 text-gray-400">
-          ...
-        </span>
-      );
-    }
-
-    return pages;
+  // Réinitialiser la recherche
+  const resetSearch = () => {
+    setSearchTerm("");
+    setStartDate("");
+    setEndDate("");
+    setCurrentPage(1);
   };
 
   return (
     <div className="overflow-x-auto mt-5">
+      <div className="flex mb-4">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Rechercher par nom, date..."
+          className="px-4 py-2 border rounded-l-md"
+        />
+        
+   
+      </div>
+
       <table className="min-w-full table-auto text-left">
         <thead>
-          <tr className="bg-gray-100  text-gray-700 ">
+          <tr className="bg-gray-100 text-gray-700">
             <th className="px-4 py-2">Nom de l'employé</th>
             <th className="px-4 py-2">Date début</th>
             <th className="px-4 py-2">Date Fin</th>
             <th className="px-4 py-2">Nombre de Jours</th>
-            <th className="px-4 py-2">Type</th>
             <th className="px-4 py-2">Description</th>
             <th className="px-4 py-2">Action</th>
           </tr>
@@ -90,7 +86,6 @@ const TableConge = () => {
                 <td className="px-4 py-2">{row.date_debut}</td>
                 <td className="px-4 py-2">{row.date_fin}</td>
                 <td className="px-4 py-2">{row.nombre_jours}</td>
-                <td className="px-4 py-2">{row.statut}</td>
                 <td className="px-4 py-2">{row.motif}</td>
                 <td className="px-4 py-2 flex space-x-2">
                   <button

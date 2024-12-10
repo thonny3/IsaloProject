@@ -18,7 +18,10 @@ import {
   CalendarCheck,
   PackageCheck,
   User2Icon,
-  ArrowLeftRight 
+  ArrowLeftRight,
+  DollarSign,
+  Building,
+  FileText 
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAdmin } from "../../context/AdminContext";
@@ -37,7 +40,7 @@ const SidebarItem = ({
   <Link to={to}>
     <button
       onClick={onClick}
-      className={`w-full flex items-center px-4 py-2 rounded-lg mt-1  ${
+      className={`w-full flex items-center px-4 py-2 rounded-lg ${
         isActive ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
       } ${indent ? "pl-8 text-sm" : "text-base"}`}
     >
@@ -104,7 +107,7 @@ const Sidebar = () => {
     });
   };
   return (
-    <div className="flex flex-col h-full bg-white shadow-lg relative max-h-screen">
+    <div className="flex flex-col h-full bg-white shadow-lg relative max-h-screen sidebar ">
       {/* Profile Section */}
       <div className="p-4 flex items-center space-x-3 border-b shadow-sm relative">
         <div className="w-32 ml-8 rounded-md overflow-hidden h-20">
@@ -167,6 +170,7 @@ const Sidebar = () => {
           isOpen={openMenus.employes}
           onClick={() => toggleMenu("employes")}
         />
+
         {openMenus.employes && (
           <div className="pl-6">
             <SidebarItem
@@ -193,8 +197,33 @@ const Sidebar = () => {
               isActive={activeItem === "conge"}
               onClick={() => handleItemClick("conge")}
             />
+            <SidebarItem
+              icon={DollarSign}
+              to="transaction"
+              label="Transactions"
+              indent={true}
+              isActive={activeItem === "transactions"}
+              onClick={() => handleItemClick("transactions")}
+            />
+             <SidebarItem
+              icon={FileText }
+              to="fiche"
+              label="Fiche de Paie"
+              indent={true}
+              isActive={activeItem === "fiche"}
+              onClick={() => handleItemClick("fiche")}
+            />
+            
           </div>
         )}
+
+        <SidebarItem
+          icon={Building}
+          label="Banque"
+          to="banque"
+          isActive={activeItem === "banque"}
+          onClick={() => handleItemClick("banque")}
+        />
 
         <SidebarItem
           icon={Box}
@@ -228,7 +257,7 @@ const Sidebar = () => {
               onClick={() => handleItemClick("Approvisionnement-isalo")}
             />
             <SidebarItem
-              icon={ArrowLeftRight }
+              icon={ArrowLeftRight}
               to="trafert-stocks"
               label="Tranfert stocks"
               isActive={activeItem === "tranfert"}
@@ -291,9 +320,9 @@ const Sidebar = () => {
               isActive={activeItem === "approvisionnement"}
               onClick={() => handleItemClick("approvisionnement")}
             />
-             <SidebarItem
-              icon={ArrowLeftRight }
-              to="trafert-stocks"
+            <SidebarItem
+              icon={ArrowLeftRight}
+              to="trafert-stocks-Rami"
               label="Tranfert stocks"
               isActive={activeItem === "tranfert"}
               onClick={() => handleItemClick("tranfert")}

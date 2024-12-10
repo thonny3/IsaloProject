@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import ChambreDisponible from "../../../components/modal/chambre/ChambreDisponible";
 
 const RoomReservation = () => {
-  const { listCient ,getAllClient} = useAdmin();
+  const { listCient ,getAllClient,toast} = useAdmin();
   const {getReservation,rooms,getAllChambres} =  useReservation()
   const [events, setEvents] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,7 +20,7 @@ const RoomReservation = () => {
     roomNumber: "",
     startDate: "",
     endDate: "",
-    isPaid: null,
+    isPaid: 0,
   });
  
 
@@ -34,6 +34,7 @@ const RoomReservation = () => {
       is_avance_paid : formData.isPaid
     })
       .then((res)=>{
+        toast.success('Reservation  a été erengistré')
         getReservation()
         setModalOpen(false); // Fermer le modal après l'ajout
         setFormData({
@@ -128,27 +129,7 @@ const RoomReservation = () => {
                   ))}
                 </select>
               </div>
-              <div className="form-group mt-2">
-                <label>Statut de Paiement</label>
-                <div className=" mt-2">
-                  <label htmlFor="">Paiement</label>
-                  <select
-                    name=""
-                    className="w-full form-control"
-                    id=""
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        isPaid: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">choississez paiement</option>
-                    <option value={0}>Payé</option>
-                    <option value={1}>Non Payé</option>
-                  </select>
-                </div>
-              </div>
+
             </div>
             <div>
               <div className="form-group mt-2">

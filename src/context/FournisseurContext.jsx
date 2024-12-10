@@ -3,14 +3,21 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { Fournisseur } from "../service/Fournisseur";
 import { useAdmin } from "./AdminContext";
 import { Approvisionement } from "../service/Approvisonement";
+import { Stock } from "../service/Stock";
 
 const FournisseurContext = createContext();
 export const FournisseurProvider = ({ children }) => {
   const { getAllFournisseur, toast } = useAdmin();
   const [open, setOpen] = useState(false);
+  const [openAppro, setOpenAppro] = useState(false);
   const [edit, setEdit] = useState(null);
   const [listAppro, setListappro] = useState([]);
   const [listApproRami, setListapproRami] = useState([]);
+  const [magasin, setMagasin] = useState([]);
+  const [tiko, setTiko] = useState([]);
+  const [vitrine, setVitrine] = useState([]);
+  const [activeSection, setActiveSection] = useState("magasin");
+  const [isLoading, setIsLoading] = useState(false); // State pour le chargement
   const [data, setData] = useState({
     nom: "",
     contact: "",
@@ -35,6 +42,7 @@ export const FournisseurProvider = ({ children }) => {
     e.preventDefault();
 
     if (validateForm()) {
+      setIsLoading(true); // Début du chargement
       if (edit) {
         Fournisseur.updateFournisseur(edit, {
           nom: data.nom,
@@ -46,7 +54,9 @@ export const FournisseurProvider = ({ children }) => {
             toast.success("Le fournisseur a été modifié !");
             getAllFournisseur();
           })
-          .catch((error) => console.log(error));
+          .catch((error) => console.log(error)) .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
       } else {
         Fournisseur.createFournisseur({
           nom: data.nom,
@@ -58,7 +68,9 @@ export const FournisseurProvider = ({ children }) => {
             toast.success("Le fournisseur a été enregistré !");
             getAllFournisseur();
           })
-          .catch((error) => console.log(error));
+          .catch((error) => console.log(error)) .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
       }
     }
   };
@@ -97,6 +109,7 @@ export const FournisseurProvider = ({ children }) => {
     resertForm();
     setOpen(false);
     setEdit(null);
+    setActiveSection("magasin")
   };
 
   const ShowEdit = (data) => {
@@ -121,12 +134,10 @@ export const FournisseurProvider = ({ children }) => {
       .catch((error) => console.log(error));
   };
 
-
-
   useEffect(() => {
     getAllFournisseur();
     getAllApprovisionement();
-    getAllApprovisionementRami()
+    getAllApprovisionementRami();
   }, []);
 
   return (
@@ -151,7 +162,11 @@ export const FournisseurProvider = ({ children }) => {
         lieu,
         setLieu,
         listApproRami,
-
+        openAppro,
+        setOpenAppro,
+        activeSection,
+        setActiveSection,
+        isLoading
       }}
     >
       {children}

@@ -21,13 +21,14 @@ export const AdminProvider = ({ children }) => {
   const [listFournisseurs, setListFournisseur] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true); // New loading state
-  const [app, setApp] = useState("toils");
+  const [app, setApp] = useState("ramirandava");
   const [listCient, setClient] = useState([]);
   const [activeButton, setActiveButton] = useState("utilisateur");
   const [etatStock, setEtatStock] = useState([]);
   const [magasin, setMagsin] = useState([]);
   const [vitrine, setVitrine] = useState([]);
   const [tiko, setTiko] = useState([]);
+  const [global, setGlobal] = useState([]);
 
   const closeModal = () => {
     setOpenModalDelete(false);
@@ -81,7 +82,6 @@ export const AdminProvider = ({ children }) => {
     Client.getAllClient()
       .then((res) => {
         setClient(res.data);
-        console.log(res.data);
       })
       .catch((error) => {
         console.log(error);
@@ -124,7 +124,17 @@ export const AdminProvider = ({ children }) => {
         getTypeConges,
         activeButton,
         setActiveButton,
-        etatStock, setEtatStock,magasin, setMagsin,vitrine, setVitrine,tiko, setTiko
+        etatStock,
+        setEtatStock,
+        magasin,
+        setMagsin,
+        vitrine,
+        setVitrine,
+        tiko,
+        setTiko,
+        setClient,
+        global,
+        setGlobal,
       }}
     >
       {children}

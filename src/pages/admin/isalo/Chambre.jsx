@@ -53,16 +53,7 @@ export default function Chambre() {
         >
           Catégorie{" "}
         </button>
-        <button
-          onClick={() => setNom("dispo")}
-          className={`px-4 py-2 rounded-md font-medium duration-100  ${
-            nom === "dispo"
-              ? "bg-primary text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-           
-          }`}
-        >
-         Disponible
-        </button>
+   
       </div>
       <div className="mt-10  flex justify-between items-center">
         <div className="search flex items-center">

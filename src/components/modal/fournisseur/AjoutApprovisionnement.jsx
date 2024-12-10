@@ -20,7 +20,7 @@ export default function AjoutApprovisionnement() {
     tiko,
   } = useAdmin();
 
-  const { getVenteRami, getVenteToiles } = useProduit();
+  const { getVenteRami, getVenteToiles, historyTranfertToils,getMagasinTranfert } = useProduit();
   const { user } = useAuth();
   const {
     open,
@@ -30,6 +30,8 @@ export default function AjoutApprovisionnement() {
     getAllApprovisionementRami,
     lieu,
     setLieu,
+    activeSection,
+    setActiveSection,
   } = useFournisseur();
   const [produitId, setProduitId] = useState("");
   const [quantite, setQuantite] = useState("");
@@ -177,7 +179,6 @@ export default function AjoutApprovisionnement() {
         employe_id: idFourn,
         valeur_sortie: totalAmount,
         produits: panier,
-        raison: raison,
       })
         .then(() => {
           toast.success("Ajout avec succès !");
@@ -196,7 +197,6 @@ export default function AjoutApprovisionnement() {
         employe_id: user.id,
         montant_total: totalAmount,
         produits: panier,
-        raison: raison,
         stock_id: stockage,
       })
         .then(() => {
@@ -209,10 +209,34 @@ export default function AjoutApprovisionnement() {
           getVenteRami();
         })
         .catch((error) => {
-      
           toast.error("Quantité insuffisante pour le produit.");
         });
-    } else if (lieu === "tranfertToiles" || lieu === "tranfertRami") {
+    } else if (lieu === "tranfertRami") {
+      console.log({
+        source_id: stockSource,
+        produits: panier,
+        destination_id: stockDes,
+      });
+      Approvisionement.tranfertStock({
+        source_id: stockSource,
+        produits: panier,
+        destination_id: stockDes,
+      })
+        .then(() => {
+          toast.success("Ajout avec succès !");
+          setProduitId("");
+          setQuantite("");
+          setPrix("");
+          setPanier([]);
+          getMagasinTranfert()
+          setActiveSection("magasin");
+          setOpen(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("Une erreur est survenue. Veuillez réessayer.");
+        });
+    } else if (lieu === "tranfertToiles") {
       Approvisionement.tranfertStock({
         source_id: stockSource,
         produits: panier,
@@ -225,7 +249,8 @@ export default function AjoutApprovisionnement() {
           setPrix("");
           setPanier([]);
           setOpen(false);
-          getVenteRami();
+          historyTranfertToils();
+          getMagasinTranfert();
         })
         .catch((error) => {
           console.error(error);
@@ -241,13 +266,15 @@ export default function AjoutApprovisionnement() {
       }))
     : [];
 
-  const stocksOptions = listProduit
-    ? etatStock.map((row) => ({
-        value: row.produit.id,
-        label: row.produit.nom,
-      }))
+    const stocksOptions = listProduit
+    ? etatStock
+        .filter((row) => row.produit && row.produit.id && row.produit.nom) // Filtrer les éléments valides
+        .map((row) => ({
+          value: row.produit.id,
+          label: row.produit.nom,
+        }))
     : [];
-
+    
   const stocksVitrineOptions = listProduit
     ? vitrine.map((row) => ({
         value: row.produit.id,
@@ -309,7 +336,7 @@ export default function AjoutApprovisionnement() {
 
         {(lieu === "tranfertToiles" || lieu === "tranfertRami") && (
           <h1 className="text-2xl font-semibold mt-5 border-b border-gray-200 w-fit">
-            TRansfert de stock
+            Transfert de stock
           </h1>
         )}
       </div>
@@ -327,18 +354,6 @@ export default function AjoutApprovisionnement() {
                   setIdfourni(selectedOption?.value)
                 }
                 placeholder="Sélectionnez un employé"
-              />
-            </div>
-          )}
-          {lieu == "venteIsalo" && (
-            <div className="form-4">
-              <label htmlFor="">Raison </label>
-              <br />
-              <input
-                type="text"
-                className="form-control  h-10"
-                placeholder="Raison ...."
-                onChange={(e) => SetRaison(e.target.value)}
               />
             </div>
           )}
@@ -414,7 +429,7 @@ export default function AjoutApprovisionnement() {
                     label: row.nom,
                   }))}
                 onChange={(selectedOption) =>
-                  setStockDes(selectedOption?.value)
+                  setStockSource(selectedOption?.value)
                 }
                 placeholder="Sélectionnez un stock"
               />
@@ -427,14 +442,20 @@ export default function AjoutApprovisionnement() {
               <br />
               <Select
                 className="w-[270px]"
-                options={liststocks
-                  .filter((row) => row.nom == "Stock Toiles") // Exclure "Stock Toiles"
-                  .map((row) => ({
-                    value: row.id,
-                    label: row.nom,
-                  }))}
+                options={[
+                  ...liststocks
+                    .filter(
+                      (row) =>
+                        row.nom !== "Stock Toiles" && row.id !== stockSource // Exclure le stock sélectionné dans "Source"
+                    )
+                    .map((row) => ({
+                      value: row.id,
+                      label: row.nom,
+                    })),
+                  { value: 4, label: "Stock Toiles" }, // Ajouter "Stock Toiles" comme option fixe
+                ]}
                 onChange={(selectedOption) =>
-                  setStockSource(selectedOption?.value)
+                  setStockDes(selectedOption?.value)
                 }
                 placeholder="Sélectionnez un stock"
               />
@@ -497,18 +518,6 @@ export default function AjoutApprovisionnement() {
               />
             </div>
           )}
-          {lieu == "venteRami" && (
-            <div className="form-4">
-              <label htmlFor="">Raison </label>
-              <br />
-              <input
-                type="text"
-                className="form-control  h-10"
-                placeholder="Raison ...."
-                onChange={(e) => SetRaison(e.target.value)}
-              />
-            </div>
-          )}
         </div>
 
         <form
@@ -562,73 +571,71 @@ export default function AjoutApprovisionnement() {
                 />
               </div>
             )}
-{(lieu === "venteRami" || lieu === "tranfertRami") && (
-  stockage === 1 || stockDes === 1 ? (
-    <div className="form1">
-      <label>
-        Nom du stock vitrine <span className="text-red-500">*</span>
-      </label>
-      <br />
-      <Select
-        value={stocksVitrineOptions.find(
-          (option) => option.value === produitId
-        )}
-        onChange={(selectedOption) => {
-          setProduitId(selectedOption?.value || ""); // Met à jour `produitId`
-          handleProductChange({
-            target: { value: selectedOption?.value || "" },
-          }); // Appelle la fonction existante
-        }}
-        options={stocksVitrineOptions}
-        className="w-[250px]"
-        placeholder="Sélectionnez un produit"
-      />
-    </div>
-  ) : stockage === 2 || stockDes === 2 ? (
-    <div className="form1">
-      <label>
-        Nom du stock magasin <span className="text-red-500">*</span>
-      </label>
-      <br />
-      <Select
-        value={stocksMagasinOptions.find(
-          (option) => option.value === produitId
-        )}
-        onChange={(selectedOption) => {
-          setProduitId(selectedOption?.value || ""); // Met à jour `produitId`
-          handleProductChange({
-            target: { value: selectedOption?.value || "" },
-          }); // Appelle la fonction existante
-        }}
-        options={stocksMagasinOptions}
-        className="w-[250px]"
-        placeholder="Sélectionnez un produit"
-      />
-    </div>
-  ) : stockage === 3 || stockDes === 3 ? (
-    <div className="form1">
-      <label>
-        Nom du stock tiko <span className="text-red-500">*</span>
-      </label>
-      <br />
-      <Select
-        value={stocksTikoOptions.find(
-          (option) => option.value === produitId
-        )}
-        onChange={(selectedOption) => {
-          setProduitId(selectedOption?.value || ""); // Met à jour `produitId`
-          handleProductChange({
-            target: { value: selectedOption?.value || "" },
-          }); // Appelle la fonction existante
-        }}
-        options={stocksTikoOptions}
-        className="w-[250px]"
-        placeholder="Sélectionnez un produit"
-      />
-    </div>
-  ) : null
-)}
-
+            {(lieu === "venteRami" || lieu === "tranfertRami") &&
+              (stockage === 1 || stockSource === 1 ? (
+                <div className="form1">
+                  <label>
+                    Nom du stock vitrine <span className="text-red-500">*</span>
+                  </label>
+                  <br />
+                  <Select
+                    value={stocksVitrineOptions.find(
+                      (option) => option.value === produitId
+                    )}
+                    onChange={(selectedOption) => {
+                      setProduitId(selectedOption?.value || ""); // Met à jour `produitId`
+                      handleProductChange({
+                        target: { value: selectedOption?.value || "" },
+                      }); // Appelle la fonction existante
+                    }}
+                    options={stocksVitrineOptions}
+                    className="w-[250px]"
+                    placeholder="Sélectionnez un produit"
+                  />
+                </div>
+              ) : stockage === 2 || stockSource === 2 ? (
+                <div className="form1">
+                  <label>
+                    Nom du stock magasin <span className="text-red-500">*</span>
+                  </label>
+                  <br />
+                  <Select
+                    value={stocksMagasinOptions.find(
+                      (option) => option.value === produitId
+                    )}
+                    onChange={(selectedOption) => {
+                      setProduitId(selectedOption?.value || ""); // Met à jour `produitId`
+                      handleProductChange({
+                        target: { value: selectedOption?.value || "" },
+                      }); // Appelle la fonction existante
+                    }}
+                    options={stocksMagasinOptions}
+                    className="w-[250px]"
+                    placeholder="Sélectionnez un produit"
+                  />
+                </div>
+              ) : stockage === 3 || stockSource === 3 ? (
+                <div className="form1">
+                  <label>
+                    Nom du stock tiko <span className="text-red-500">*</span>
+                  </label>
+                  <br />
+                  <Select
+                    value={stocksTikoOptions.find(
+                      (option) => option.value === produitId
+                    )}
+                    onChange={(selectedOption) => {
+                      setProduitId(selectedOption?.value || ""); // Met à jour `produitId`
+                      handleProductChange({
+                        target: { value: selectedOption?.value || "" },
+                      }); // Appelle la fonction existante
+                    }}
+                    options={stocksTikoOptions}
+                    className="w-[250px]"
+                    placeholder="Sélectionnez un produit"
+                  />
+                </div>
+              ) : null)}
 
             <div className="form2">
               <label>

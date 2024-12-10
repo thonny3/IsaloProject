@@ -18,6 +18,10 @@ let getVentesToiles = () => {
     return Axios.get('sortie/stocktoiles')
 }
 
+let getOneApprovisionement = (id)=>{
+    return Axios.post('stockstoiles'+id)
+}
+
 
 
 // approvisionement Ramirandava
@@ -44,4 +48,4 @@ let tranfertStock = (data) => {
 
 
 
-export const Approvisionement = {tranfertStock,getVentesToiles,getVentesRami, createApprovisionement, getAllApprovisionement, createApprovisionementRami, getAllApprovisionementRami, createVenteToiles, createVentesRami }
+export const Approvisionement = {getOneApprovisionement,tranfertStock,getVentesToiles,getVentesRami, createApprovisionement, getAllApprovisionement, createApprovisionementRami, getAllApprovisionementRami, createVenteToiles, createVentesRami }

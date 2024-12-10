@@ -1,74 +1,92 @@
 // context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from "react";
-
+import { Transaction } from "../service/Transaction";
+import { useAdmin } from "./AdminContext";
 const TransactionContext = createContext();
 export const TransactionProvider = ({ children }) => {
+  const { toast } = useAdmin();
   const [open, setOpen] = useState(false);
+  const [listTrans,setListTrans] =  useState([])
   const [data, setData] = useState({
-    nom: "",
-    payement: "",
-    montant: "",
-    dateTrans: "",
+    user_id: null,
+    type: "avance",
+    amount: null,
+    status: "payé",
+    reason: "",
   });
-  const [errors, setErrors] = useState({ nom: "", payement: "", montant: "",dateTrans:"" });
+  const [errors, setErrors] = useState({
+    user_id: null,
+    amount: null,
+    status: "",
+  });
 
-  const getNom = (e) => {
-    setData({...data, nom: e.target.value });
+  const getUser = (e) => {
+    setData({ ...data, user_id: e.value });
   };
 
-  const getPayement = (e) => {
-    setData({...data, payement: e.target.value });
+  const getAmout = (e) => {
+    setData({ ...data, amount: e.target.value });
   };
 
-  const getMontant = (e) => {
-    setData({ ...data,montant: e.target.value });
+  const getStatus = (e) => {
+    setData({ ...data, status: e.target.value });
   };
 
-  const getDateTrans = (e) => {
-    setData({ ...data,dateTrans: e.target.value });
+  const getRaison = (e) => {
+    setData({ ...data, reason: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      onclose();
-      console.log(data.nom);
-      console.log(data.dateTrans);
-      console.log(data.montant);
-      console.log(data.payement);
+      Transaction.createTransaction({
+        user_id: data.user_id,
+        type: data.type,
+        amount: data.amount,
+        status: data.status,
+      })
+        .then((res) => {
+          getTransactions()
+          toast.success("Ajout  avec success !");
+          onclose();
+        })
+        .catch((error) => toast.error("L'avance doit être inférieure ou égale au salaire."));
     }
   };
 
   const resertForm = () => {
-    setData({ nom: "", payement: "", montant: "", dateTrans:"" });
+    setData({
+      user_id: null,
+      type: "avance",
+      amount: null,
+      status: "",
+      reason: "",
+    });
   };
 
   const validateForm = () => {
-    let formErrors = { nom: "", payement: "", montant: "",dateTrans:"" };
+    let formErrors = { user_id: null, amount: null, status: "" };
     let isValid = true;
 
-    // Vérifier   si  nom  vide
-    if (data.nom == "") {
-      formErrors.nom = "Le nom est vide .";
+    // Vérifier si l'utilisateur est vide
+    if (data.user_id == null) {
+      formErrors.user_id = "L'employé est vide.";
       isValid = false;
     }
 
-    // Vérifier   si  nom  vide
-    if (data.payement == "") {
-      formErrors.payement = "Selectionnez le payement";
+    // Vérifier si le montant est vide
+    if (data.amount == null) {
+      formErrors.amount = "Veuillez remplir le montant.";
       isValid = false;
     }
-    // Vérifier   si  date de transaction  vide
-    if (data.dateTrans == "") {
-      formErrors.dateTrans = "Veuillez saisir le date   .";
+
+    // Vérifier si le statut est vide
+    if (data.status === "") {
+      formErrors.status = "Veuillez sélectionner un statut.";
       isValid = false;
     }
-    // Vérifier   si  nom  vide
-    if (data.montant == "") {
-      formErrors.montant = "Veuillez saisir le montant  .";
-      isValid = false;
-    }
+
     setErrors(formErrors);
     return isValid;
   };
@@ -78,20 +96,30 @@ export const TransactionProvider = ({ children }) => {
     setOpen(false);
   };
 
+  const getTransactions = () => {
+    Transaction.getTransaction()
+      .then((res) => {
+        console.log(res.data);
+        setListTrans(res.data)
+      })
+      .catch((error) => console.log(error));
+  };
   return (
     <TransactionContext.Provider
       value={{
         open,
         setOpen,
-        getNom,
-        getDateTrans,
-        getMontant,
-        getPayement,
+        getUser,
+        getAmout,
+        getRaison,
+        getStatus,
         handleSubmit,
         onclose,
         errors,
         resertForm,
-        data
+        data,
+        getTransactions,
+        listTrans
       }}
     >
       {children}

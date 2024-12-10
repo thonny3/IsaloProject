@@ -33,6 +33,11 @@ import VenteIsalo from "../pages/admin/isalo/VenteIsalo";
 import VenteRami from "../pages/admin/Ramirandava/VenteRami";
 import TranferStock from "../pages/admin/TranferStock";
 import Configuration from "../pages/admin/Configuration";
+import Banque from "../pages/admin/Banque";
+import { ClientProvider } from "../context/ClientContext";
+import { BanqueProvider } from "../context/BanqueContext";
+import TransfertStockRami from "../pages/admin/Ramirandava/TransfertStockRami";
+import FichePaie from "../pages/admin/FichePaie";
 
 export default function AdminRoute() {
   return (
@@ -43,14 +48,27 @@ export default function AdminRoute() {
         <Route path="/role" element={<Role />} />
         <Route path="/list" element={<List />} />
         <Route path="/sejour" element={<Sejour />} />
-        <Route path="/clients" element={<Client />} />
         <Route path="/configuration" element={<Configuration />} />
+        <Route path="/fiche" element={<FichePaie/>} />
+        <Route path="/banque" element={<BanqueProvider><Banque /></BanqueProvider>} />
+        <Route path="/clients" element={<ClientProvider><Client /></ClientProvider>} />
+        <Route path="/transaction" element={<TransactionProvider><Transaction/></TransactionProvider>} />
         <Route
           path="/trafert-stocks"
           element={
             <FournisseurProvider>
               <ProduitProvider>
                 <TranferStock />
+              </ProduitProvider>
+            </FournisseurProvider>
+          }
+        />
+           <Route
+          path="/trafert-stocks-Rami"
+          element={
+            <FournisseurProvider>
+              <ProduitProvider>
+                <TransfertStockRami/>
               </ProduitProvider>
             </FournisseurProvider>
           }

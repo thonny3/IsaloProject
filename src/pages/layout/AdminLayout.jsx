@@ -12,7 +12,7 @@ export default function AdminLayout() {
       </div>
       
       {/* Main content */}
-      <div className="contenu w-full ml-2 rounded-lg overflow-y-auto   bg-gray-50">
+      <div className="contenu w-full ml-2 rounded-lg overflow-y-auto  bg-white">
         <Header/>
         <div className="mt-2">
         <Contenu />

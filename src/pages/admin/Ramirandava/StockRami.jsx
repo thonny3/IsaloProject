@@ -4,56 +4,54 @@ import TvaleMagasin from "../../../components/table/TvaleMagasin";
 import TableVitrine from "../../../components/table/TableVitrine";
 import TableTiko from "../../../components/table/TableTiko";
 import { useStock } from "../../../context/StockContext";
+import TableGlobalStock from "../../../components/table/TableGlobalStock";
 
 export default function StockRami() {
-  const { setStockage, stockage, getStockTiko,getStockVitrine,getStockMagasin } = useStock();
+  const {
+    setStockage,
+    stockage,
+    getStockTiko,
+    getStockVitrine,
+    getStockMagasin,
+    getGlobalStock
+  } = useStock();
 
   // Fonction pour vérifier si le bouton est actif
   const isActive = (type) => stockage === type;
-
-  useEffect(()=>{
-    getStockMagasin()
-  },[])
+  const buttons = [
+    { label: " Tous", value: "tous", action: getGlobalStock },
+    { label: " Magasin", value: "magasin", action: getStockMagasin },
+    { label: " Vitrine", value: "vitrine", action: getStockVitrine },
+    { label: " TIKO", value: "tiko", action: getStockTiko },
+  ]  
+  useEffect(() => {
+    getStockMagasin();
+    getGlobalStock()
+  }, []);
 
   return (
-    <div className="bg-white shadow-lg p-8">
-      <h1 className="text-gray-700 text-2xl mb-5">Listes des stocks</h1>
+    <div className="">
+      <h1 className="text-gray-700 text-4xl mb-5">Historique des stocks</h1>
       {/* Boutons */}
-      <div className="flex  items-center space-x-4 mb-6">
-        <button
-          className={`px-6 py-2 rounded font-semibold ${
-            isActive("magasin")
-              ? "bg-primary text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-          onClick={() => {setStockage("magasin");getStockMagasin()}}
-        >
-          Stocks Magasin
-        </button>
-        <button
-          className={`px-6 py-2 rounded font-semibold ${
-            isActive("vitrine")
-              ? "bg-primary text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-          onClick={() =>{ setStockage("vitrine");getStockVitrine()}}
-        >
-          Stocks Vitrine
-        </button>
-        <button
-          className={`px-6 py-2 rounded font-semibold ${
-            isActive("tiko")
-              ? "bg-primary text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-          onClick={() => {
-            setStockage("tiko");
-            getStockTiko();
-          }}
-        >
-          Stocks TIKO
-        </button>
+      <div className="flex items-center space-x-4 mb-6">
+        {buttons.map((button) => (
+          <button
+            key={button.value}
+            className={`px-6 py-2 rounded  transition-all duration-300 ease-in-out ${
+              isActive(button.value)
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            } `}
+            onClick={() => {
+              setStockage(button.value);
+              button.action();
+            }}
+          >
+            {button.label}
+          </button>
+        ))}
       </div>
+
       {/* Recherche */}
       <div className="flex justify-between items-center mb-6">
         <div className="search flex items-center  p-2 rounded w-full max-w-md">
@@ -68,6 +66,7 @@ export default function StockRami() {
 
       {/* Contenu */}
       <div className="mt-5">
+        {stockage === "tous" && <TableGlobalStock />}
         {stockage === "magasin" && <TvaleMagasin />}
         {stockage === "vitrine" && <TableVitrine />}
         {stockage === "tiko" && <TableTiko />}

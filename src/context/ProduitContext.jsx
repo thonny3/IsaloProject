@@ -3,13 +3,14 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { Produit } from "../service/Produit";
 import { useAdmin } from "./AdminContext";
 import { Approvisionement } from "../service/Approvisonement";
+import { Stock } from "../service/Stock";
 
 const ProduitContext = createContext();
 export const ProduitProvider = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [venteRami,setVenteRami] =  useState([])
-  const [venteToiles,setVenteToiles] =  useState([])
+  const [venteRami, setVenteRami] = useState([]);
+  const [venteToiles, setVenteToiles] = useState([]);
   const [data, setData] = useState({
     nom: "",
     categorie_id: "",
@@ -22,13 +23,21 @@ export const ProduitProvider = ({ children }) => {
     prix: null,
     prix_vente: null,
   });
+  const [errorsCat, setErrorsCat] = useState({
+    cat: "",
+  });
   const [stock, setStock] = useState("vendu"); // État pour le lieu sélectionné
   const [etatSTockToil, setetatSTockToil] = useState([]);
   const { toast } = useAdmin();
   const [listCategorie, setListCategorie] = useState([]);
+  const [transfertToils, setToils] = useState([]);
   const [listProduit, setListProduit] = useState(null);
+  const [cat,setCat] =  useState("")
   const [edit, setEdit] = useState(null);
-
+  const [magasin, setMagasin] = useState([]);
+  const [vitrine, setVitrine] = useState([]);
+  const [tiko, setTiko] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // State pour le chargement
   const getNom = (e) => {
     setData({ ...data, nom: e.target.value });
   };
@@ -49,6 +58,7 @@ export const ProduitProvider = ({ children }) => {
     e.preventDefault();
 
     if (validateForm()) {
+      setIsLoading(true); // Début du chargement
       if (edit) {
         Produit.updateProduct(edit, {
           nom: data.nom,
@@ -61,9 +71,11 @@ export const ProduitProvider = ({ children }) => {
             onclose();
             getAllProduct();
             toast.success("Le produit a été ajouté avec succès !");
-            console.log("zaza");
           })
-          .catch((error) => console.log(error));
+          .catch((error) => console.log(error))
+          .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
       } else {
         Produit.createProduct({
           nom: data.nom,
@@ -78,7 +90,47 @@ export const ProduitProvider = ({ children }) => {
             toast.success("Le produit a été ajouté avec succès !");
             console.log("zaza");
           })
-          .catch((error) => console.log(error));
+          .catch((error) => console.log(error))
+          .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
+      }
+    }
+  };
+
+  const handleSubmitCat = () => {
+
+
+    if (validateFormCat()) {
+      setIsLoading(true); // Début du chargement
+      if (edit) {
+      
+        Produit.updateCategory(edit, {
+          nom: cat
+        })
+          .then((res) => {
+            onclose();
+            getAllCategorie();
+            toast.success("Le catégorie a été ajouté avec succès !");
+          })
+          .catch((error) => console.log(error))
+          .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
+      } else {
+        Produit.createCategory({
+          nom: cat
+        })
+          .then((res) => {
+            onclose();
+            getAllCategorie();
+            toast.success("Le produit a été ajouté avec succès !");
+            console.log("zaza");
+          })
+          .catch((error) => console.log(error))
+          .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
       }
     }
   };
@@ -118,18 +170,40 @@ export const ProduitProvider = ({ children }) => {
     return isValid;
   };
 
+  const validateFormCat = () => {
+    let formErrors = {
+      cat: ""
+    };
+    let isValid = true;
+
+    // Vérifier   si  nom  vide
+    if (cat == "") {
+      formErrors.cat = "Le nom  du  catégorie est vide .";
+      isValid = false;
+    }
+
+ 
+
+    setErrorsCat(formErrors);
+    return isValid;
+  };
+
   const onclose = () => {
     setOpen(false);
     resertForm();
-    setOpenDelete(false)
-
+    setOpenDelete(false);
+    setCat("")
     setErrors({
       nom: "",
       categorie_id: "",
       prix_vente: null,
       prix: null,
     });
+    setErrorsCat({
+      cat:""
+    })
   };
+  
 
   const resertForm = () => {
     setData({
@@ -167,8 +241,6 @@ export const ProduitProvider = ({ children }) => {
       .catch((error) => console.log(error));
   };
 
-
-
   // liste categorie
   const getAllCategorie = () => {
     Produit.getAllCategory()
@@ -178,6 +250,45 @@ export const ProduitProvider = ({ children }) => {
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  // tranfert  hstorique
+  const historyTranfertToils = () => {
+    Stock.historiqueTransfertToils()
+      .then((res) => {
+        setToils(res.data);
+        console.log(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getMagasinTranfert = () => {
+    Stock.historiqueTransfertMagasin()
+      .then((res) => {
+        setMagasin(res.data);
+        console.log(res.data);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const getVitrineTranfert = () => {
+    Stock.historiqueTransfertVitrine()
+      .then((res) => {
+        setVitrine(res.data);
+        console.log(res.data);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const getTikoTranfert = () => {
+    Stock.historiqueTransfertTiko()
+      .then((res) => {
+        setTiko(res.data);
+        console.log(res.data);
+      })
+      .catch((error) => console.log(error));
   };
 
   const ShowEdit = (data) => {
@@ -191,7 +302,8 @@ export const ProduitProvider = ({ children }) => {
     getAllProduct();
     getAllCategorie();
     getVenteRami();
-
+    historyTranfertToils();
+    getMagasinTranfert();
   }, []);
 
   return (
@@ -223,7 +335,21 @@ export const ProduitProvider = ({ children }) => {
         venteRami,
         getVenteRami,
         venteToiles,
-        getVenteToiles
+        getVenteToiles,
+        historyTranfertToils,
+        transfertToils,
+        magasin,
+        getMagasinTranfert,
+        tiko,
+        getTikoTranfert,
+        vitrine,
+        getVitrineTranfert,
+        isLoading,
+        cat,
+        setCat,
+        errorsCat,
+        handleSubmitCat,
+        setListCategorie
       }}
     >
       {children}

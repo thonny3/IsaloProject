@@ -19,4 +19,8 @@ let updateEmploye =  (id,data)=>{
     return Axios.put('users/' + id,data)
 }
 
-export const Employe = {getEmploye,createEmploye,infotEmploye,deleteEmploye,updateEmploye}
+let fichePaie =  (id)=>{
+    return Axios.get('fiches/' + id)
+}
+
+export const Employe = {getEmploye,createEmploye,infotEmploye,deleteEmploye,updateEmploye,fichePaie}

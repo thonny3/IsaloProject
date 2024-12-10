@@ -1,7 +1,9 @@
 import React from 'react'
 import Modal from '../Modal'
 import { useAdmin } from '../../../context/AdminContext'
-import test from  '../../../assets/test.jpg'
+import Female  from  "../../../assets/Female.png"
+import Male  from  "../../../assets/Male.png"
+
 export default function DetailsEmploye() {
     const {openModalDelete,closeModal,info} =  useAdmin()
   return (
@@ -10,7 +12,9 @@ export default function DetailsEmploye() {
         <h1 className='text-center text-lg font-semibold mt-8 mb-8' >Details de l'employé</h1>
         <div className="container grid grid-cols-4 gap-12">
             <div className="image mx-auto">
-                <img src={test} alt="" srcset="" className='w-32  h-32'/>
+            {
+              info.sexe=="F" ?   <img src={Female} alt="" className="w-28 h-28" />:   <img src={Male} alt="" className="w-28 h-28" />
+            }
             </div>
             <div className="info">
                 <div className="info-text">

@@ -9,7 +9,8 @@ export default function VenteIsalo() {
     const {setLieu,setOpen} = useFournisseur()
   return (
     <>
-      <div className="vente flex items-center justify-between">
+  <div className="bg-white shadow-lg p-8">
+  <div className="vente flex items-center justify-between">
         <div className="flex items-center">
           <span className="text-secondary text-gray-700 text-2xl">
             Liste des ventes
@@ -40,6 +41,7 @@ export default function VenteIsalo() {
       <div className="mt-5">
         <TableVenteToiles/>
       </div>
+  </div>
       <AjoutApprovisionnement/>
     </>
   );

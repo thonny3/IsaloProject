@@ -8,8 +8,8 @@ export default function Modal({ open, onClose, children, width, height }) {
       onClick={() => {
         if (allowClose) onClose();
       }}
-      className={`fixed inset-0 flex justify-center items-center transition-colors ${
-        open ? "visible opacity-100" : "invisible opacity-0"
+      className={`fixed inset-0 flex justify-center items-center transition-colors duration-200 ${
+        open ? "visible opacity-100 duration-200"  : "invisible opacity-0 duration-200"
       }`}
       style={{
         backgroundColor: open ? "rgba(0, 0, 0, 0.5)" : "transparent",
@@ -19,8 +19,8 @@ export default function Modal({ open, onClose, children, width, height }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ width: width, height: height }}
-        className={`bg-white shadow px-6 py-2 rounded-lg transition-all ${
+        style={{ height: height, width: width}} // Ajout de la largeur via le style en ligne
+        className={`bg-white shadow px-6 py-2 rounded-lg transition-all   ${
           open ? "scale-100 opacity-100" : "scale-125 opacity-0"
         }`}
       >

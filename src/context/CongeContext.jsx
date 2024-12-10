@@ -27,12 +27,20 @@ export const CongeProvider = ({ children }) => {
 
   const [listeConge, setListeConge] = useState(null);
 
-  const getUser = (e) => {
-    setData({ ...data, user_id: e.target.value });
+  const getUser = (selectedOption) => {
+    if (selectedOption) {
+      setData(prevData => ({ ...prevData, user_id: selectedOption.value }));
+    } else {
+      setData(prevData => ({ ...prevData, user_id: "" }));
+    }
   };
 
-  const getTypeConge = (e) => {
-    setData({ ...data, type_conge_id: e.target.value });
+  const getTypeConge = (selectedOption) => {
+    if (selectedOption) {
+      setData(prevData => ({ ...prevData, type_conge_id: selectedOption.value }));
+    } else {
+      setData(prevData => ({ ...prevData, type_conge_id: "" }));
+    }
   };
 
   const getMotif = (e) => {
@@ -56,9 +64,10 @@ export const CongeProvider = ({ children }) => {
     e.preventDefault();
 
     if (validateForm()) {
+      
       setIsLoading(true); // Début du chargement
       if (edit) {
-        console.log(data.type_conge_id);
+    
         Conge.updateConge(edit, {
           user_id: data.user_id,
           type_conger_id: data.type_conge_id,
@@ -76,6 +85,7 @@ export const CongeProvider = ({ children }) => {
             setIsLoading(false); // Fin du chargement
           });
       } else {
+        console.log(data.user_id);
         Conge.createConge({
           user_id: data.user_id,
           type_conger_id: data.type_conge_id,

@@ -6,9 +6,10 @@ import { useAdmin } from "./AdminContext";
 const PosteContext = createContext();
 
 export const PosteProvider = ({ children }) => {
-const {toast,getPostes} = useAdmin()
+  const { toast, getPostes } = useAdmin();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State pour le chargement
   const [data, setData] = useState({
     nom: "",
     description: "",
@@ -29,37 +30,42 @@ const {toast,getPostes} = useAdmin()
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (validateForm()) {
-     if(edit){
-        Poste.updatePoste(edit,{
-            nom: data.nom,
-            description: data.description,
+      setIsLoading(true); // Début du chargement
+      if (edit) {
+        Poste.updatePoste(edit, {
+          nom: data.nom,
+          description: data.description,
+        })
+          .then((res) => {
+            onclose();
+            toast.success("Le poste a été modifié !");
+            getPostes();
           })
-            .then((res) => {
-              onclose();
-              toast.success("Le poste a été modifié !");
-              getPostes()
-            })
-            .catch((error) => console.log(error));
-     }else{
+          .catch((error) => console.log(error))
+          .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
+      } else {
         Poste.createPoste({
-            nom: data.nom,
-            description: data.description,
+          nom: data.nom,
+          description: data.description,
+        })
+          .then((res) => {
+            onclose();
+            toast.success("Le poste a été enregistré !");
+            getPostes();
           })
-            .then((res) => {
-              onclose();
-              toast.success("Le poste a été enregistré !");
-              getPostes()
-            })
-            .catch((error) => console.log(error));
-     }
-    
+          .catch((error) => console.log(error))
+          .finally(() => {
+            setIsLoading(false); // Fin du chargement
+          });
+      }
     }
   };
 
   const validateForm = () => {
-    let formErrors = { nom: ""};
+    let formErrors = { nom: "" };
     let isValid = true;
 
     // Vérifier   si  nom  vide
@@ -92,9 +98,9 @@ const {toast,getPostes} = useAdmin()
     });
   };
 
-  useEffect(()=>{
-    getPostes()
-  },[])
+  useEffect(() => {
+    getPostes();
+  }, []);
   return (
     <PosteContext.Provider
       value={{
@@ -109,6 +115,7 @@ const {toast,getPostes} = useAdmin()
         edit,
         ShowEdit,
         errors,
+        isLoading
       }}
     >
       {children}

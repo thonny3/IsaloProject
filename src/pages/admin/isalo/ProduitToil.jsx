@@ -8,10 +8,11 @@ export default function ProduitToil() {
   const {etatStock} = useStock()
   return (
     <>
-        <div className="poste flex items-center justify-between">
+      <div className="">
+      <div className="poste flex items-center justify-between">
     <div className="flex items-center ">
        
-          <div className="text-secondary text-gray-700 text-2xl">
+          <div className="text-secondary text-gray-700 text-4xl">
             <span >Listes des stocks </span>
           </div>
           <div className="nombre ml-2 w-5 h-5 bg-gray-200 rounded-full flex justify-center items-center mt-2">
@@ -34,6 +35,7 @@ export default function ProduitToil() {
       </div>
       <div className="mt-5">
       <TableStockToils/>
+      </div>
       </div>
     </>
   )
